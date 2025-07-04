@@ -1,0 +1,34 @@
+.container {
+  padding: 20px;
+  text-align: center;
+  background-color: #f8f8f8;
+  min-height: 100vh;
+}
+
+.intersection {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.road {
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+
+.green {
+  background-color: #a4f7a3;
+}
+
+.red {
+  background-color: #f7a3a3;
+}
+
+.chart-container {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+}
