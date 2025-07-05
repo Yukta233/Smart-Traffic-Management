@@ -1,10 +1,50 @@
+#bg-canvas {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: -1 !important;
+}
+
 .container {
-  padding: 20px;
-  text-align: center;
-  background-color: #f8f8f8;
+  position: relative;
+  z-index: 1;
+  background-color: rgba(255, 255, 255, 0.85);
+  padding: 10px;
+  border-radius: 10px;
+  margin: 10px auto;
+  max-width: 1300px;
+  
+}
+.app-container {
+  position: relative;
   min-height: 100vh;
 }
 
+.content-container {
+  position: relative;
+  z-index: 1;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 2rem auto;
+  border-radius: 8px;
+}
+
+.path-finder-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.road {
+  transition: all 0.3s ease;
+}
+
+.metric-box {
+  transition: all 0.5s ease;
+}
 .intersection {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -31,4 +71,8 @@
   background-color: #ffffff;
   padding: 20px;
   border-radius: 8px;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
