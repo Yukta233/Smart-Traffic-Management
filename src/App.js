@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 import { Bar } from 'react-chartjs-2';
+import * as THREE from 'three';
 import {
   Chart as ChartJS,
   BarElement,
@@ -12,7 +13,7 @@ import {
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
-// Max Heap for traffic prioritization
+// MaxHeap class for priority signal
 class MaxHeap {
   constructor() {
     this.heap = [];
@@ -29,7 +30,6 @@ class MaxHeap {
       let element = this.heap[index];
       let parentIndex = Math.floor((index - 1) / 2);
       let parent = this.heap[parentIndex];
-
       if (element.value <= parent.value) break;
       this.heap[index] = parent;
       this.heap[parentIndex] = element;
@@ -52,20 +52,16 @@ class MaxHeap {
     const element = this.heap[index];
 
     while (true) {
-      let leftIndex = 2 * index + 1;
-      let rightIndex = 2 * index + 2;
+      let left = 2 * index + 1;
+      let right = 2 * index + 2;
       let swap = null;
 
-      if (leftIndex < length && this.heap[leftIndex].value > element.value) {
-        swap = leftIndex;
-      }
+      if (left < length && this.heap[left].value > element.value) swap = left;
       if (
-        rightIndex < length &&
-        this.heap[rightIndex].value >
-          (swap === null ? element.value : this.heap[leftIndex].value)
-      ) {
-        swap = rightIndex;
-      }
+        right < length &&
+        this.heap[right].value > (swap === null ? element.value : this.heap[left].value)
+      )
+        swap = right;
 
       if (swap === null) break;
 
@@ -76,54 +72,212 @@ class MaxHeap {
   }
 }
 
+// Graph for shortest path
+const roadGraph = {
+  north: [{ node: 'east', weight: 2 }, { node: 'west', weight: 3 }],
+  south: [{ node: 'west', weight: 1 }, { node: 'east', weight: 4 }],
+  east: [{ node: 'north', weight: 2 }],
+  west: [{ node: 'south', weight: 3 }]
+};
+
+function dijkstra(graph, start, end) {
+  const distances = {};
+  const previous = {};
+  const queue = new Set(Object.keys(graph));
+
+  for (const node of queue) {
+    distances[node] = node === start ? 0 : Infinity;
+    previous[node] = null;
+  }
+
+  while (queue.size > 0) {
+    const current = [...queue].reduce((a, b) =>
+      distances[a] < distances[b] ? a : b
+    );
+    queue.delete(current);
+    if (current === end) break;
+    for (const neighbor of graph[current]) {
+      const alt = distances[current] + neighbor.weight;
+      if (alt < distances[neighbor.node]) {
+        distances[neighbor.node] = alt;
+        previous[neighbor.node] = current;
+      }
+    }
+  }
+
+  const path = [];
+  let u = end;
+  while (previous[u]) {
+    path.unshift(u);
+    u = previous[u];
+  }
+  if (distances[end] !== Infinity) path.unshift(start);
+  return path;
+}
+
 function App() {
-  const [traffic, setTraffic] = useState({
-    north: 2,
-    south: 5,
-    east: 1,
-    west: 3,
-  });
-
+  const bgRef = useRef(null);
+  const [traffic, setTraffic] = useState({ north: 2, south: 5, east: 1, west: 3 });
   const [green, setGreen] = useState('north');
-  const [cleared, setCleared] = useState({
-    north: 0,
-    south: 0,
-    east: 0,
-    west: 0,
-  });
+  const [cleared, setCleared] = useState({ north: 0, south: 0, east: 0, west: 0 });
+  const [tick, setTick] = useState(0);
+  const [signalChanges, setSignalChanges] = useState(0);
 
-  const [tick, setTick] = useState(0); // Simulation time counter
+  const [shortestPath, setShortestPath] = useState([]);
+  const [startDir, setStartDir] = useState('north');
+  const [endDir, setEndDir] = useState('south');
+  const [showPath, setShowPath] = useState(false);
 
+
+  // Robust Three.js Animated Background
+useEffect(() => {
+  // Variables we'll need for cleanup
+  let scene, camera, renderer, particles, frameId;
+
+  // Initialize Three.js
+  const initThreeJS = () => {
+    // Get the container
+    const container = bgRef.current;
+    if (!container) return;
+
+    // Clear any existing canvas
+    while (container.firstChild) {
+      container.removeChild(container.firstChild);
+    }
+
+    // 1. Create scene
+    scene = new THREE.Scene();
+
+    // 2. Create camera
+    camera = new THREE.PerspectiveCamera(
+      75,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      1000
+    );
+    camera.position.z = 7;
+
+    // 3. Create renderer
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(0x000000, 0); // Transparent background
+    container.appendChild(renderer.domElement);
+
+    // 4. Create particles
+    const particleCount = 1000;
+    const positions = new Float32Array(particleCount * 3);
+    const colors = new Float32Array(particleCount * 3);
+
+    for (let i = 0; i < particleCount; i++) {
+      // Positions
+      positions[i * 3] = (Math.random() - 0.5) * 10;
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 10;
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 10;
+
+      // Colors
+      const hue = Math.random();
+      const color = new THREE.Color().setHSL(hue, 1.0, 0.5);
+      colors[i * 3] = color.r;
+      colors[i * 3 + 1] = color.g;
+      colors[i * 3 + 2] = color.b;
+    }
+
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+    const material = new THREE.PointsMaterial({
+      size: 0.1,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.8,
+      blending: THREE.AdditiveBlending
+    });
+
+    particles = new THREE.Points(geometry, material);
+    scene.add(particles);
+
+    // Animation loop
+    const animate = () => {
+      frameId = requestAnimationFrame(animate);
+      
+      // Rotate particles
+      particles.rotation.x += 0.001;
+      particles.rotation.y += 0.002;
+      
+      // Update positions for wave-like motion
+      const positions = geometry.attributes.position.array;
+      for (let i = 0; i < particleCount; i++) {
+        positions[i * 3 + 1] += Math.sin(Date.now() * 0.001 + i) * 0.01;
+      }
+      geometry.attributes.position.needsUpdate = true;
+      
+      renderer.render(scene, camera);
+    };
+
+    animate();
+
+    // Handle window resize
+    const handleResize = () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    };
+    window.addEventListener('resize', handleResize);
+
+    // Cleanup function
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      cancelAnimationFrame(frameId);
+      container.removeChild(renderer.domElement);
+      geometry.dispose();
+      material.dispose();
+    };
+  };
+
+  // Start the animation
+  const cleanup = initThreeJS();
+
+  // Return cleanup function
+  return () => {
+    if (cleanup) cleanup();
+  };
+}, []);
+
+  // Traffic logic
   useEffect(() => {
     const interval = setInterval(() => {
-      const heap = new MaxHeap();
-      Object.entries(traffic).forEach(([dir, val]) => heap.insert(dir, val));
-      const maxDir = heap.extractMax();
-
-      setGreen(maxDir);
       setTraffic((prev) => {
+        const heap = new MaxHeap();
+        Object.entries(prev).forEach(([dir, val]) => heap.insert(dir, val));
+        const maxDir = heap.extractMax();
+        setGreen(maxDir);
+        setSignalChanges((prevSignal) => prevSignal + 1);
+
         const updated = { ...prev };
         const updatedCleared = { ...cleared };
-
-        // Cars moved in green direction
         const clearedCars = Math.min(2, prev[maxDir]);
         updated[maxDir] = Math.max(prev[maxDir] - 2, 0);
         updatedCleared[maxDir] += clearedCars;
 
-        // Cars accumulate in other directions
         Object.keys(prev).forEach((dir) => {
           if (dir !== maxDir) updated[dir] += 1;
         });
 
         setCleared(updatedCleared);
+        setTick((prevTick) => prevTick + 1);
         return updated;
       });
-
-      setTick((prev) => prev + 1);
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [traffic,cleared]);
+    // Only run once on mount
+    // eslint-disable-next-line
+  }, []);
+
+  useEffect(() => {
+    setShortestPath(dijkstra(roadGraph, startDir, endDir));
+  }, [traffic, startDir, endDir]);
 
   const chartData = {
     labels: Object.keys(traffic).map((dir) => dir.toUpperCase()),
@@ -141,104 +295,119 @@ function App() {
 
   const chartOptions = {
     responsive: true,
-    plugins: {
-      legend: { display: false },
-      tooltip: { enabled: true },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        ticks: {
-          stepSize: 1,
-        },
-      },
-    },
+    plugins: { legend: { display: false } },
+    scales: { y: { beginAtZero: true } },
   };
 
   return (
-    <div className="container">
-      <h1>Smart Traffic Management</h1>
-      <p
+    <div>
+      <div
+        ref={bgRef}
         style={{
-          marginBottom: '20px',
-          textAlign: 'center',
-          fontSize: '18px',
-          fontWeight: 'bold',
+          position: 'fixed',
+          zIndex: -1,
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          overflow: 'hidden',
         }}
-      >
-        This system uses a smart algorithm to manage traffic flow at intersections by prioritizing the direction with the highest number of vehicles.
-        It simulates real-time traffic updates and dynamically changes signals to reduce congestion. The visualization shows which direction is allowed to move (green) and how vehicle counts change over time.
-      </p>
-
-      {/* Grid layout for chart + table */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-        {/* Traffic Table in 2x2 Grid */}
-        <div
-          className="intersection"
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '10px',
-            height: '100%',
-          }}
-        >
-          {Object.entries(traffic).map(([dir, cars]) => (
-            <div
-              className={`road ${green === dir ? 'green' : 'red'}`}
-              key={dir}
-              style={{
-                border: '1px solid #ccc',
-                padding: '10px',
-                borderRadius: '10px',
-                textAlign: 'center',
-              }}
-            >
-              <h2>{dir.toUpperCase()}</h2>
-              <p>Cars: {cars}</p>
-              <p>{green === dir ? 'GO' : 'WAIT'}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Chart */}
-        <div className="chart-container" style={{ height: '100%' }}>
-          <Bar data={chartData} options={chartOptions} />
-        </div>
-      </div>
-
-      {/* Performance Metrics */}
-      <div style={{ marginTop: '30px', textAlign: 'center' }}>
-        <h2>Performance Metrics</h2>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            gap: '20px',
-            flexWrap: 'wrap',
-            marginTop: '10px',
-          }}
-        >
-          {Object.entries(cleared).map(([dir, count]) => (
-            <div
-              key={dir}
-              style={{
-                padding: '10px 20px',
-                border: '2px solid #888',
-                borderRadius: '8px',
-                minWidth: '120px',
-                backgroundColor: '#f2f2f2',
-              }}
-            >
-              <h3 style={{ margin: '5px 0' }}>{dir.toUpperCase()}</h3>
-              <p>
-                <strong>Cleared Cars:</strong> {count}
-              </p>
-            </div>
-          ))}
-        </div>
-        <p style={{ marginTop: '15px', fontWeight: 'bold' }}>
-          Total Simulation Time: {tick * 3} seconds
+      ></div>
+      <div className="container">
+        <h1 style={{ textAlign: 'center', marginTop: '20px' }}>Smart Traffic Management</h1>
+        <p style={{ textAlign: 'center', fontWeight: 'bold' }}>
+          Real-time traffic simulation and algorithm-based signal control
         </p>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: '10px',
+            }}
+          >
+            {Object.entries(traffic).map(([dir, cars]) => (
+              <div
+                key={dir}
+                className={`road ${green === dir ? 'green' : 'red'}`}
+                style={{
+                  padding: '10px',
+                  borderRadius: '10px',
+                  textAlign: 'center',
+                  backgroundColor: green === dir ? '#c8facc' : '#fdb8b8',
+                }}
+              >
+                <h2>{dir.toUpperCase()}</h2>
+                <p>Cars: {cars}</p>
+                <p>{green === dir ? 'GO' : 'WAIT'}</p>
+              </div>
+            ))}
+          </div>
+          <div>
+            <Bar data={chartData} options={chartOptions} />
+          </div>
+        </div>
+
+        {/* Path finder */}
+        <div style={{ textAlign: 'center', marginTop: '30px' }}>
+          <button
+            onClick={() => setShowPath(!showPath)}
+            style={{
+              background: 'linear-gradient(135deg, #4CAF50, #ff4d4d)',
+              color: 'white',
+              padding: '14px 28px',
+              fontSize: '18px',
+              fontWeight: 'bold',
+              border: 'none',
+              borderRadius: '12px',
+              cursor: 'pointer',
+              boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+              transition: 'all 0.4s ease-in-out',
+            }}
+            onMouseOver={e => e.target.style.transform = 'scale(1.05)'}
+            onMouseOut={e => e.target.style.transform = 'scale(1)'}
+          >
+            🚦 Shortest Path Finder
+          </button>
+
+          {showPath && (
+            <div style={{ marginTop: '20px' }}>
+              <select value={startDir} onChange={e => setStartDir(e.target.value)}>
+                {Object.keys(traffic).map(dir => <option key={dir}>{dir}</option>)}
+              </select>
+              <select value={endDir} onChange={e => setEndDir(e.target.value)}>
+                {Object.keys(traffic).map(dir => <option key={dir}>{dir}</option>)}
+              </select>
+              <p><strong>Path:</strong> {shortestPath.join(' → ')}</p>
+            </div>
+          )}
+        </div>
+
+        {/* Performance */}
+        <div style={{ textAlign: 'center', marginTop: '30px' }}>
+          <h2>Performance Metrics</h2>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
+            {Object.entries(cleared).map(([dir, count]) => (
+              <div
+                key={dir}
+                style={{
+                  padding: '10px 20px',
+                  border: '2px solid #888',
+                  borderRadius: '8px',
+                  minWidth: '120px',
+                  backgroundColor: '#f2f2f2',
+                }}
+              >
+                <h3>{dir.toUpperCase()}</h3>
+                <p><strong>Cleared Cars:</strong> {count}</p>
+              </div>
+            ))}
+          </div>
+          <p style={{ marginTop: '10px', fontWeight: 'bold' }}>
+            Total Simulation Time: {tick * 3} sec | Signal Changes: {signalChanges}
+          </p>
+        </div>
       </div>
     </div>
   );
