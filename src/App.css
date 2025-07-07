@@ -1,3 +1,4 @@
+/* Three.js Canvas - MUST REMAIN */
 #bg-canvas {
   position: fixed !important;
   top: 0 !important;
@@ -5,74 +6,113 @@
   width: 100vw !important;
   height: 100vh !important;
   z-index: -1 !important;
+  pointer-events: none !important;
 }
 
-.container {
-  position: relative;
-  z-index: 1;
-  background-color: rgba(255, 255, 255, 0.85);
-  padding: 10px;
-  border-radius: 10px;
-  margin: 10px auto;
-  max-width: 1300px;
-  
-}
+/* Layout Structure */
 .app-container {
   position: relative;
   min-height: 100vh;
 }
 
-.content-container {
+.container {
   position: relative;
   z-index: 1;
-  background: rgba(0, 0, 0, 0.7);
-  color: white;
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 2rem auto;
-  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.15); /* Lighter but still transparent */
+  padding: 20px;
+  border-radius: 12px;
+  margin: 20px auto;
+  max-width: 1300px;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Traffic Intersection Grid */
+.intersection {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+/* Road Signal Cards */
+.road {
+  padding: 15px;
+  border-radius: 10px;
+  text-align: center;
+  transition: all 0.4s ease;
+  backdrop-filter: blur(5px);
+  border: 1px solid transparent;
+}
+
+.road.green {
+  background-color: rgba(76, 175, 80, 0.25);
+  border-color: rgba(76, 175, 80, 0.4);
+  box-shadow: 0 0 15px rgba(76, 175, 80, 0.2);
+}
+
+.road.red {
+  background-color: rgba(244, 67, 54, 0.25);
+  border-color: rgba(244, 67, 54, 0.4);
+  box-shadow: 0 0 15px rgba(244, 67, 54, 0.2);
+}
+
+/* Chart Container */
+.chart-container {
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Buttons */
+.path-finder-button {
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .path-finder-button:hover {
   transform: scale(1.05);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3) !important;
 }
 
-.road {
-  transition: all 0.3s ease;
-}
-
+/* Metrics */
 .metric-box {
-  transition: all 0.5s ease;
-}
-.intersection {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-.road {
-  border: 1px solid #ccc;
-  padding: 10px;
-  border-radius: 10px;
-  text-align: center;
-}
-
-
-.green {
-  background-color: #a4f7a3;
-}
-
-.red {
-  background-color: #f7a3a3;
-}
-
-.chart-container {
-  background-color: #ffffff;
-  padding: 20px;
+  padding: 12px 20px;
   border-radius: 8px;
+  min-width: 120px;
+  background: rgba(30, 30, 40, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: all 0.5s ease;
+  backdrop-filter: blur(4px);
 }
+
+/* Animations */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { 
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Typography */
+h1, h2, h3, h4 {
+  color: #ffffff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .container {
+    padding: 15px;
+    margin: 15px;
+  }
+  
+  .intersection {
+    grid-template-columns: 1fr;
+  }
 }
