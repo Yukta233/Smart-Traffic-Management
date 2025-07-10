@@ -1,4 +1,3 @@
-// File: App.js
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import { Bar } from 'react-chartjs-2';
@@ -14,25 +13,61 @@ import {
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
-// Queue class
-class Queue {
+class MaxHeap {
   constructor() {
-    this.items = [];
+    this.heap = [];
   }
-  enqueue(element) {
-    this.items.push(element);
+
+  insert(key, value) {
+    this.heap.push({ key, value });
+    this.bubbleUp();
   }
-  dequeue() {
-    return this.items.shift();
+
+  bubbleUp() {
+    let index = this.heap.length - 1;
+    while (index > 0) {
+      let element = this.heap[index];
+      let parentIndex = Math.floor((index - 1) / 2);
+      let parent = this.heap[parentIndex];
+      if (element.value <= parent.value) break;
+      this.heap[index] = parent;
+      this.heap[parentIndex] = element;
+      index = parentIndex;
+    }
   }
-  front() {
-    return this.items[0];
+
+  extractMax() {
+    const max = this.heap[0];
+    const end = this.heap.pop();
+    if (this.heap.length > 0) {
+      this.heap[0] = end;
+      this.sinkDown(0);
+    }
+    return max.key;
   }
-  isEmpty() {
-    return this.items.length === 0;
-  }
-  size() {
-    return this.items.length;
+
+  sinkDown(index) {
+    const length = this.heap.length;
+    const element = this.heap[index];
+
+    while (true) {
+      let left = 2 * index + 1;
+      let right = 2 * index + 2;
+      let swap = null;
+
+      if (left < length && this.heap[left].value > element.value) swap = left;
+      if (
+        right < length &&
+        this.heap[right].value > (swap === null ? element.value : this.heap[left].value)
+      )
+        swap = right;
+
+      if (swap === null) break;
+
+      this.heap[index] = this.heap[swap];
+      this.heap[swap] = element;
+      index = swap;
+    }
   }
 }
 
@@ -78,8 +113,22 @@ function dijkstra(graph, start, end) {
   return path;
 }
 
+// Helper to generate a car object (could be extended with more info)
+let carIdCounter = 1;
+function createCar() {
+  return { id: carIdCounter++, arrivedAt: Date.now() };
+}
+
+// Initial queues: each direction has an array of car objects
+const initialQueues = {
+  north: [createCar(), createCar()],
+  south: [createCar(), createCar(), createCar(), createCar(), createCar()],
+  east: [createCar()],
+  west: [createCar(), createCar(), createCar()],
+};
+
 function App() {
-  const [traffic, setTraffic] = useState({ north: new Queue(), south: new Queue(), east: new Queue(), west: new Queue() });
+  const [trafficQueues, setTrafficQueues] = useState(initialQueues);
   const [green, setGreen] = useState('north');
   const [cleared, setCleared] = useState({ north: 0, south: 0, east: 0, west: 0 });
   const [tick, setTick] = useState(0);
@@ -89,67 +138,58 @@ function App() {
   const [endDir, setEndDir] = useState('south');
   const [showPath, setShowPath] = useState(false);
 
-  // Populate initial traffic queues
-  useEffect(() => {
-    const initTraffic = { north: new Queue(), south: new Queue(), east: new Queue(), west: new Queue() };
-    Object.keys(initTraffic).forEach(dir => {
-      for (let i = 0; i < Math.floor(Math.random() * 5 + 2); i++) {
-        initTraffic[dir].enqueue(`car-${dir}-${i}`);
-      }
-    });
-    setTraffic(initTraffic);
-  }, []);
-
   useEffect(() => {
     const interval = setInterval(() => {
-      setTraffic(prev => {
-        const maxQueue = Object.entries(prev).reduce((max, [dir, queue]) =>
-          queue.size() > max.size ? { dir, size: queue.size() } : max,
-        { dir: null, size: -1 });
+      setTrafficQueues((prevQueues) => {
+        // Find the direction with the largest queue
+        const heap = new MaxHeap();
+        Object.entries(prevQueues).forEach(([dir, queue]) => heap.insert(dir, queue.length));
+        const maxDir = heap.extractMax();
+        setGreen(maxDir);
+        setSignalChanges((prevSignal) => prevSignal + 1);
 
-        const updated = { ...prev };
-        const updatedCleared = { ...cleared };
+        // Remove up to 2 cars from the green direction (FIFO)
+        const updatedQueues = { ...prevQueues };
+        const carsToClear = Math.min(2, updatedQueues[maxDir].length);
+        updatedQueues[maxDir] = updatedQueues[maxDir].slice(carsToClear);
 
-        if (maxQueue.dir) {
-          setGreen(maxQueue.dir);
-          setSignalChanges(prevSignal => prevSignal + 1);
+        // Update cleared count
+        setCleared((prevCleared) => ({
+          ...prevCleared,
+          [maxDir]: prevCleared[maxDir] + carsToClear,
+        }));
 
-          // Remove two cars if available
-          for (let i = 0; i < 2; i++) {
-            if (!updated[maxQueue.dir].isEmpty()) {
-              updated[maxQueue.dir].dequeue();
-              updatedCleared[maxQueue.dir]++;
-            }
+        // For other directions, add a new car (simulate arrival)
+        Object.keys(updatedQueues).forEach((dir) => {
+          if (dir !== maxDir) {
+            updatedQueues[dir] = [...updatedQueues[dir], createCar()];
           }
+        });
 
-          // Add one car to other queues
-          Object.keys(prev).forEach(dir => {
-            if (dir !== maxQueue.dir) {
-              updated[dir].enqueue(`car-${dir}-${Date.now()}`);
-            }
-          });
-
-          setCleared(updatedCleared);
-          setTick(prevTick => prevTick + 1);
-        }
-        return updated;
+        setTick((prevTick) => prevTick + 1);
+        return updatedQueues;
       });
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [cleared]);
+  }, []);
 
   useEffect(() => {
     setShortestPath(dijkstra(roadGraph, startDir, endDir));
-  }, [traffic, startDir, endDir]);
+  }, [trafficQueues, startDir, endDir]);
+
+  // For chart and UI, get the queue lengths
+  const traffic = Object.fromEntries(
+    Object.entries(trafficQueues).map(([dir, queue]) => [dir, queue.length])
+  );
 
   const chartData = {
-    labels: Object.keys(traffic).map(dir => dir.toUpperCase()),
+    labels: Object.keys(traffic).map((dir) => dir.toUpperCase()),
     datasets: [
       {
         label: 'Number of Cars',
-        data: Object.values(traffic).map(q => q.size()),
-        backgroundColor: Object.keys(traffic).map(dir =>
+        data: Object.values(traffic),
+        backgroundColor: Object.keys(traffic).map((dir) =>
           green === dir ? 'rgba(0, 200, 0, 0.6)' : 'rgba(255, 0, 0, 0.6)'
         ),
         borderWidth: 1,
@@ -166,6 +206,7 @@ function App() {
   return (
     <div className="app-container">
       <TrafficBackground />
+
       <div className="content-container">
         <h1 style={{ textAlign: 'center', marginTop: '20px', color: 'black' }}>Smart Traffic Management</h1>
         <p style={{ textAlign: 'center', fontWeight: 'bold', color: 'black' }}>
@@ -174,7 +215,7 @@ function App() {
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-            {Object.entries(traffic).map(([dir, queue]) => (
+            {Object.entries(traffic).map(([dir, cars]) => (
               <div
                 key={dir}
                 className={`road ${green === dir ? 'green' : 'red'}`}
@@ -189,8 +230,12 @@ function App() {
                 }}
               >
                 <h2>{dir.toUpperCase()}</h2>
-                <p>Cars: {queue.size()}</p>
+                <p>Cars: {cars}</p>
                 <p>{green === dir ? 'GO' : 'WAIT'}</p>
+                {/* Optionally, show car IDs for debugging */}
+                {/* <div style={{ fontSize: '10px', color: '#ccc' }}>
+                  {trafficQueues[dir].map(car => car.id).join(', ')}
+                </div> */}
               </div>
             ))}
           </div>
@@ -217,14 +262,51 @@ function App() {
           >
             🚦 Shortest Path Finder
           </button>
+
           {showPath && (
             <div style={{ marginTop: '20px', color: 'black' }}>
-              <select value={startDir} onChange={e => setStartDir(e.target.value)}>
+              <select
+                value={startDir}
+                onChange={e => setStartDir(e.target.value)}
+                style={{
+                  padding: '10px 14px',
+                  margin: '0 10px',
+                  backgroundColor: '#fff',
+                  color: '#333',
+                  border: '1px solid #ccc',
+                  borderRadius: '8px',
+                  fontSize: '16px',
+                  fontWeight: '500',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                  outline: 'none',
+                  appearance: 'none',
+                  cursor: 'pointer',
+                }}
+              >
                 {Object.keys(traffic).map(dir => <option key={dir}>{dir}</option>)}
               </select>
-              <select value={endDir} onChange={e => setEndDir(e.target.value)}>
+
+              <select
+                value={endDir}
+                onChange={e => setEndDir(e.target.value)}
+                style={{
+                  padding: '10px 14px',
+                  margin: '0 10px',
+                  backgroundColor: '#fff',
+                  color: '#333',
+                  border: '1px solid #ccc',
+                  borderRadius: '8px',
+                  fontSize: '16px',
+                  fontWeight: '500',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                  outline: 'none',
+                  appearance: 'none',
+                  cursor: 'pointer',
+                }}
+              >
                 {Object.keys(traffic).map(dir => <option key={dir}>{dir}</option>)}
               </select>
+
               <p><strong>Path:</strong> {shortestPath.join(' → ')}</p>
             </div>
           )}
