@@ -1,0 +1,73 @@
+Time,Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday
+12:00 AM,0%,0%,0%,0%,0%,0%,0%
+02:00 AM,0%,0%,0%,0%,0%,0%,0%
+04:00 AM,0%,0%,0%,0%,0%,0%,0%
+06:00 AM,0%,0%,0%,0%,0%,0%,0%
+08:00 AM,0%,11%,11%,10%,9%,0%,0%
+10:00 AM,2%,28%,28%,27%,26%,10%,2%
+12:00 PM,7%,41%,42%,41%,39%,38%,18%
+02:00 PM,13%,40%,43%,44%,40%,44%,46%
+04:00 PM,31%,38%,43%,45%,41%,46%,50%
+06:00 PM,38%,59%,67%,66%,61%,67%,54%
+08:00 PM,35%,51%,59%,60%,56%,63%,54%
+10:00 PM,15%,13%,16%,17%,15%,21%,22%
+12:00 AM,0%,0%,0%,0%,0%,0%,0%
+02:00 AM,0%,0%,0%,0%,0%,0%,0%
+04:00 AM,0%,0%,0%,0%,0%,0%,0%
+06:00 AM,0%,0%,0%,0%,0%,0%,0%
+08:00 AM,0%,12%,12%,12%,11%,0%,2%
+10:00 AM,2%,32%,32%,31%,29%,27%,10%
+12:00 PM,7%,39%,39%,39%,36%,34%,19%
+02:00 PM,12%,35%,37%,38%,36%,34%,27%
+04:00 PM,19%,36%,39%,39%,41%,37%,42%
+06:00 PM,35%,50%,54%,55%,51%,55%,47%
+08:00 PM,38%,60%,64%,65%,61%,65%,53%
+10:00 PM,36%,52%,56%,58%,56%,59%,51%
+12:00 AM,35 km/h,37 km/h,36 km/h,36 km/h,36 km/h,36 km/h,36 km/h
+02:00 AM,37 km/h,39 km/h,38 km/h,37 km/h,38 km/h,38 km/h,38 km/h
+04:00 AM,39 km/h,40 km/h,39 km/h,39 km/h,39 km/h,39 km/h,39 km/h
+06:00 AM,36 km/h,41 km/h,37 km/h,35 km/h,35 km/h,35 km/h,35 km/h
+08:00 AM,34 km/h,28 km/h,27 km/h,28 km/h,28 km/h,28 km/h,31 km/h
+10:00 AM,32 km/h,25 km/h,24 km/h,24 km/h,25 km/h,25 km/h,29 km/h
+12:00 PM,31 km/h,25 km/h,24 km/h,23 km/h,25 km/h,25 km/h,27 km/h
+02:00 PM,29 km/h,24 km/h,23 km/h,23 km/h,24 km/h,24 km/h,23 km/h
+04:00 PM,28 km/h,24 km/h,23 km/h,23 km/h,23 km/h,23 km/h,23 km/h
+06:00 PM,25 km/h,21 km/h,20 km/h,20 km/h,21 km/h,20 km/h,22 km/h
+08:00 PM,27 km/h,26 km/h,25 km/h,25 km/h,24 km/h,25 km/h,24 km/h
+10:00 PM,30 km/h,30 km/h,29 km/h,29 km/h,31 km/h,32 km/h,30 km/h
+12:00 AM,35 km/h,37 km/h,36 km/h,36 km/h,35 km/h,36 km/h,35 km/h
+02:00 AM,37 km/h,38 km/h,37 km/h,37 km/h,37 km/h,37 km/h,39 km/h
+04:00 AM,39 km/h,40 km/h,39 km/h,39 km/h,39 km/h,39 km/h,39 km/h
+06:00 AM,38 km/h,39 km/h,38 km/h,37 km/h,36 km/h,36 km/h,35 km/h
+08:00 AM,37 km/h,31 km/h,36 km/h,34 km/h,35 km/h,31 km/h,35 km/h
+10:00 AM,30 km/h,25 km/h,24 km/h,24 km/h,25 km/h,25 km/h,28 km/h
+12:00 PM,28 km/h,25 km/h,24 km/h,24 km/h,24 km/h,24 km/h,24 km/h
+02:00 PM,27 km/h,25 km/h,25 km/h,24 km/h,24 km/h,24 km/h,24 km/h
+04:00 PM,26 km/h,24 km/h,25 km/h,24 km/h,24 km/h,24 km/h,23 km/h
+06:00 PM,25 km/h,22 km/h,21 km/h,21 km/h,20 km/h,21 km/h,23 km/h
+08:00 PM,27 km/h,25 km/h,25 km/h,24 km/h,24 km/h,25 km/h,24 km/h
+10:00 PM,32 km/h,31 km/h,31 km/h,31 km/h,30 km/h,31 km/h,30 km/h
+12:00 AM,17 min 11 s,16 min 2 s,16 min 29 s,16 min 40 s,16 min 41 s,16 min 42 s,16 min 50 s
+02:00 AM,16 min 13 s,15 min 30 s,15 min 54 s,15 min 27 s,15 min 19 s,16 min,15 min 58 s
+04:00 AM,15 min 30 s,14 min 58 s,15 min 18 s,15 min 15 s,15 min 8 s,15 min 29 s,15 min 19 s
+06:00 AM,15 min 9 s,14 min 38 s,15 min 3 s,15 min 1 s,15 min 40 s,16 min 6 s,15 min 49 s
+08:00 AM,16 min 19 s,16 min 5 s,16 min 32 s,16 min 57 s,16 min 48 s,17 min 25 s,17 min 9 s
+10:00 AM,18 min 42 s,19 min 41 s,24 min 25 s,24 min 35 s,24 min 9 s,24 min 34 s,22 min 30 s
+12:00 PM,21 min 33 s,24 min 40 s,24 min 49 s,25 min 13 s,25 min 56 s,25 min 35 s,25 min 24 s
+02:00 PM,22 min 1 s,24 min 44 s,24 min 30 s,25 min 59 s,25 min 55 s,25 min 33 s,25 min 46 s
+04:00 PM,23 min 39 s,25 min 8 s,25 min 31 s,26 min 29 s,25 min 39 s,26 min 51 s,26 min 4 s
+06:00 PM,23 min 58 s,28 min 59 s,28 min 5 s,29 min 51 s,30 min 49 s,29 min 39 s,27 min
+08:00 PM,21 min 56 s,22 min 54 s,24 min 17 s,25 min 13 s,25 min 20 s,25 min 26 s,24 min 45 s
+10:00 PM,18 min 10 s,18 min 40 s,19 min 2 s,19 min 31 s,19 min 1 s,25 min 53 s,26 min 29 s
+12:00 AM,17 min 3 s,16 min 15 s,16 min 47 s,16 min 51 s,16 min 56 s,16 min 51 s,17 min
+02:00 AM,16 min 10 s,15 min 44 s,15 min 21 s,15 min 39 s,15 min 11 s,15 min 44 s,15 min 33 s
+04:00 AM,15 min 39 s,15 min 21 s,15 min 39 s,15 min 42 s,15 min 36 s,15 min 39 s,15 min 26 s
+06:00 AM,15 min 24 s,15 min 10 s,15 min 35 s,15 min 54 s,15 min 48 s,15 min 55 s,15 min 37 s
+08:00 AM,16 min 25 s,16 min 53 s,17 min 29 s,17 min 38 s,17 min 30 s,17 min 41 s,17 min 2 s
+10:00 AM,17 min 18 s,19 min 27 s,19 min 42 s,19 min 40 s,19 min 27 s,19 min 28 s,18 min 16 s
+12:00 PM,18 min 27 s,23 min 12 s,23 min 12 s,23 min 3 s,22 min 45 s,22 min 24 s,19 min 50 s
+02:00 PM,19 min 18 s,24 min 51 s,24 min 49 s,24 min 47 s,24 min 20 s,23 min 57 s,21 min 18 s
+04:00 PM,20 min 9 s,24 min 17 s,24 min 36 s,24 min 44 s,24 min 12 s,24 min 2 s,22 min 42 s
+06:00 PM,21 min 14 s,24 min 33 s,25 min 14 s,25 min 26 s,24 min 56 s,24 min 50 s,24 min 36 s
+08:00 PM,21 min 55 s,24 min 22 s,25 min 6 s,25 min 20 s,24 min 52 s,24 min 49 s,25 min 21 s
+10:00 PM,22 min 3 s,24 min 15 s,24 min 53 s,24 min 38 s,25 min 5 s,24 min 36 s,25 min 25 s
