@@ -1,25 +1,10 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { Line } from 'react-chartjs-2';
-import {
-  Chart as ChartJS,
-  LineElement,
-  PointElement,
-  CategoryScale,
-  LinearScale,
-  Title,
-  Tooltip,
-  Filler,
-  Legend,
-} from 'chart.js';
-
-ChartJS.register(LineElement, PointElement, CategoryScale, LinearScale, Title, Tooltip, Filler, Legend);
 
 const TrafficChart = () => {
   const [chartData, setChartData] = useState(null);
-  const [selectedDay, setSelectedDay] = useState('All');
   const chartRef = useRef();
-  const days = ['All', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
   useEffect(() => {
     axios.get('http://localhost:5000/traffic-data')
@@ -30,10 +15,7 @@ const TrafficChart = () => {
         raw.forEach(item => {
           const hour = item.timestamp.split(' ')[1].slice(0, 5); // "HH:MM"
           const congestion = parseInt(item.value.replace('%', ''));
-          const day = item.day;
-
-          if (selectedDay !== 'All' && day !== selectedDay) return;
-
+          // Always include all days now
           if (!isNaN(congestion)) {
             if (!hourlyMap[hour]) hourlyMap[hour] = [];
             hourlyMap[hour].push(congestion);
@@ -58,7 +40,7 @@ const TrafficChart = () => {
           labels,
           datasets: [
             {
-              label: `Avg Congestion ${selectedDay !== 'All' ? 'on ' + selectedDay : ''}`,
+              label: 'Avg Congestion',
               data: values,
               fill: true,
               backgroundColor: gradient || 'rgba(75,192,192,0.2)',
@@ -73,7 +55,7 @@ const TrafficChart = () => {
       .catch(err => {
         console.error('Error fetching traffic data:', err);
       });
-  }, [selectedDay]);
+  }, []);
 
   return (
     <div style={{ width: '95%', margin: 'auto', marginTop: '40px' }}>
@@ -81,18 +63,7 @@ const TrafficChart = () => {
         🚦 Live Traffic Congestion Trends
       </h2>
 
-      <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-        <label style={{ fontSize: '1rem', marginRight: '10px' }}>Filter by Day:</label>
-        <select
-          value={selectedDay}
-          onChange={e => setSelectedDay(e.target.value)}
-          style={{ padding: '6px 12px', fontSize: '1rem' }}
-        >
-          {days.map(day => (
-            <option key={day} value={day}>{day}</option>
-          ))}
-        </select>
-      </div>
+      {/* Dropdown removed */}
 
       {chartData ? (
         <Line
