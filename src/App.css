@@ -1,4 +1,6 @@
 /* Three.js Canvas - MUST REMAIN */
+@import "leaflet/dist/leaflet.css";
+
 #bg-canvas {
   position: fixed !important;
   top: 0 !important;
@@ -13,7 +15,56 @@
 .app-container {
   position: relative;
   min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
+
+.content-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: auto;
+}
+.vehicle-container {
+  position: absolute;
+  top: 50%;
+
+  left: 50%;
+  width: 100px;
+  height: 100px;
+  z-index: 1;
+}
+
+.vehicle {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #00ff88;
+  position: absolute;
+  animation: moveVehicle 5s linear infinite;
+}
+
+.vehicle.north { top: 0; left: 45px; animation-name: moveDown; }
+.vehicle.east { left: 90px; top: 45px; animation-name: moveLeft; }
+
+
+.vehicle.north { animation-name: moveNorth; }
+.vehicle.south { animation-name: moveSouth; }
+.vehicle.east { animation-name: moveEast; }
+.vehicle.west { animation-name: moveWest; }
+.vehicle.north {
+  top: -100px;
+  left: -50px;
+  animation-name: moveNorth;
+}
+
+.vehicle.east {
+  top: 0;
+  left: -200px;
+  animation-name: moveEast;
+}
+@keyframes moveNorth { from { top: 80px; } to { top: 0; } }
+@keyframes moveSouth { from { top: 0; } to { top: 80px; } }
+@keyframes moveEast { from { left: 0; } to { left: 80px; } }
+@keyframes moveWest { from { left: 80px; } to { left: 0; } }
 
 .container {
   position: relative;
@@ -38,26 +89,36 @@
 
 /* Road Signal Cards */
 .road {
-  padding: 15px;
+  padding: 12px;
   border-radius: 10px;
-  text-align: center;
-  transition: all 0.4s ease;
-  backdrop-filter: blur(5px);
-  border: 1px solid transparent;
+  color: #fff;
+  font-weight: bold;
+  transition: all 0.3s ease;
 }
 
 .road.green {
-  background-color: rgba(76, 175, 80, 0.25);
-  border-color: rgba(76, 175, 80, 0.4);
-  box-shadow: 0 0 15px rgba(76, 175, 80, 0.2);
+  background-color: rgba(0, 200, 0, 0.3);
+  border: 2px solid green;
+}
+
+.road.yellow {
+  background-color: rgba(255, 200, 0, 0.3);
+  border: 2px solid orange;
 }
 
 .road.red {
-  background-color: rgba(244, 67, 54, 0.25);
-  border-color: rgba(244, 67, 54, 0.4);
-  box-shadow: 0 0 15px rgba(244, 67, 54, 0.2);
+  background-color: rgba(255, 0, 0, 0.3);
+  border: 2px solid red;
+}
+button:hover {
+  transform: scale(1.03);
 }
 
+select {
+  margin: 0 10px;
+  padding: 5px;
+  border-radius: 6px;
+}
 /* Chart Container */
 .chart-container {
   background-color: rgba(255, 255, 255, 0.9);
