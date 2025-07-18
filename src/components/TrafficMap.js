@@ -29,10 +29,22 @@ const TrafficMap = ({ geoRoute = [], setSource, setDestination }) => {
 
         if (clickCount % 2 === 0) {
           setSource(coord);
-          L.marker(coord, { title: "Source" }).addTo(mapInstance);
+          L.circleMarker(coord, {
+            radius: 10,
+            fillColor: 'green',
+            color: 'darkgreen',
+            weight: 2,
+            fillOpacity: 1,
+          }).bindPopup('Source').addTo(mapInstance);
         } else {
           setDestination(coord);
-          L.marker(coord, { title: "Destination" }).addTo(mapInstance);
+          L.circleMarker(coord, {
+            radius: 10,
+            fillColor: 'red',
+            color: 'darkred',
+            weight: 2,
+            fillOpacity: 1,
+          }).bindPopup('Destination').addTo(mapInstance);
         }
 
         clickCount++;
